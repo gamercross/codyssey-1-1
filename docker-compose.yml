@@ -1,0 +1,19 @@
+# claude-drafted: 2026-11-02
+name: codyssey-1-1
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: codyssey-web:1.0
+    container_name: codyssey-app
+    ports:
+      - "8080:80"
+    volumes:
+      - codyssey-data:/usr/share/nginx/html/data
+    restart: unless-stopped
+
+volumes:
+  codyssey-data:
+    name: codyssey-data
