@@ -3,7 +3,7 @@
 <!-- claude-drafted: 2026-11-02 -->
 
 > **작성 규칙:** 각 인터뷰 문항은 **① 직접 재현한 실험(`가설 → 확인 → 조치`)**과 **② 60초 안에 말할 수 있는 `PREP(결론 → 이유 → 사례 → 결론)` 답변 카드**로 구성합니다.  
-> 상위 요약으로 돌아가기: [`README.md`](../README.md) · 실행 로그 보기: [`01-verification-log.md`](01-verification-log.md)
+> 상위 요약으로 돌아가기: [`README.md`](../README.md) · 실행 로그 보기: [`01-verification-log.md`](01-verification-log.md) · 발표 슬라이드 보기: [`presentation.html`](presentation.html) / [`Codyssey-1-1-발표자료.pptx`](Codyssey-1-1-발표자료.pptx)
 
 ---
 
@@ -19,12 +19,12 @@ flowchart LR
     A --> V["5. 재실행 및 응답 검증<br/>(curl -i localhost:포트)"]
 ```
 
-| 순서 | 진단 단계 | 실행 명령어 | 확인하는 내용 |
+| 순서 | 진단 단계 | 실행 명령어 | 확인하는 내용 및 포트 해제 유의점 |
 |---|---|---|---|
 | **1** | 에러 원문 및 충돌 포트 특정 | `docker run -p 8080:80 ...` 에러 출력 확인 | 컨테이너 내부 에러가 아니라 **호스트의 몇 번 포트(`8080`) 바인딩 실패**인지 확인 |
 | **2** | 다른 Docker 컨테이너 점유 확인 | `docker ps --filter publish=8080` | 내가 이전에 띄워 두고 끄지 않은 다른 컨테이너가 `8080`을 쓰고 있는지 먼저 확인 |
 | **3** | 호스트 OS 일반 프로세스 확인 | `lsof -i :8080` (또는 리눅스 `ss -tulpn \| grep :8080`) | Docker가 아니라면 호스트에서 돌아가는 로컬 서버(Node, Python, Nginx 등)의 **PID와 프로세스 이름** 특정 |
-| **4** | 원인별 조치 | 기존 컨테이너면 `docker stop <이름>`, 로컬 프로세스면 종료 또는 새 컨테이너의 **호스트 포트만 `-p 8081:80`으로 변경** | 컨테이너 내부 포트(`80`)는 고칠 필요 없이 호스트 쪽 매핑 포트만 바꾸면 즉시 해결됨 |
+| **4** | 원인별 포트 해제 또는 분리 조치 | • Docker 컨테이너인 경우: `docker stop <이름> && docker rm <이름>`<br/>• 호스트 일반 프로세스인 경우: `kill -15 <PID>` (정상 종료 우선)<br/>• 기존 서비스 유지 시: `-p 8081:80`으로 호스트 포트 변경 | **[유의점]** `lsof`에 `com.docker.backend`가 뜬다고 해서 그 PID를 `kill -9`로 죽이면 **Docker 데몬 전체가 강제 종료**됩니다. 컨테이너 점유 포트는 반드시 `docker stop`으로 해제하고, 일반 프로세스도 데이터 손실 방지를 위해 `kill -15`(SIGTERM)를 먼저 시도한 뒤 응답이 없을 때만 `kill -9`(SIGKILL)를 사용합니다. |
 
 ### ② 일부러 실패해 본 실험 흔적
 ```text
@@ -43,7 +43,11 @@ $ lsof -i :8080 | head -n 5
 COMMAND     PID    USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
 com.docke 65420 <USER>  152u  IPv6 0x18dbffa2a10556e5      0t0  TCP *:http-alt (LISTEN)
 
-# 4. [조치] 실패한 컨테이너를 정리하고, 기존 codyssey-app(8080)은 유지한 채 호스트 포트만 8081로 분리하여 동시 실행 성공
+# 4-A. [조치 방법 1: 기존 점유 컨테이너/프로세스를 중지해 8080 포트를 해제하는 경우]
+# - Docker 컨테이너 점유 시: docker stop codyssey-app
+# - 호스트 일반 프로세스 점유 시: kill -15 <PID> (정상 종료 유도, 미응답 시에만 kill -9 <PID>)
+
+# 4-B. [조치 방법 2: 기존 codyssey-app(8080)을 유지한 채 호스트 포트만 8081로 분리하여 동시 실행]
 $ docker rm -f codyssey-app-conflict
 $ docker run -d --name codyssey-app-8081 -p 8081:80 codyssey-web:1.0
 4ba32bcfc1347c30ee765c6d70cda7f047dba42f7dbcc47767869aa608f5c475
@@ -57,10 +61,10 @@ Content-Length: 352
 
 ### ③ 구술 답변 카드 (PREP — 60초)
 > *(PREP은 출처 확인 불가, 실무에서 통용되는 후보 구조)*
-- **P (결론):** 호스트 포트 충돌이 발생하면 **① 에러 로그로 포트 번호 특정 → ② `docker ps --filter publish=포트`로 기존 컨테이너 확인 → ③ `lsof -i :포트`로 호스트 프로세스(PID) 확인 → ④ 불필요한 대상이면 중지하고, 유지해야 할 서비스라면 호스트 매핑 포트만 변경**하는 4단계 순서로 진단합니다.
+- **P (결론):** 호스트 포트 충돌이 발생하면 **① 에러 로그로 포트 번호 특정 → ② `docker ps --filter publish=포트`로 기존 컨테이너 확인 → ③ `lsof -i :포트`로 호스트 프로세스(PID) 확인 → ④ `docker stop` / `kill -15 <PID>`로 해제하거나 호스트 매핑 포트만 변경**하는 4단계 순서로 진단합니다.
 - **R (이유):** 하나의 호스트 IP와 포트 조합에는 동시에 하나의 소켓만 바인딩할 수 있는데, 점유 주체가 이전에 띄운 Docker 컨테이너일 수도 있고 호스트 OS에서 직접 실행 중인 로컬 서버일 수도 있어 좁혀 나가야 하기 때문입니다.
 - **E (사례):** 실제로 `codyssey-app`이 `8080` 포트로 떠 있는 상태에서 `codyssey-app-conflict`를 `-p 8080:80`으로 실행해 `Bind for 0.0.0.0:8080 failed: port is already allocated` 에러를 재현했고, `docker ps --filter publish=8080`과 `lsof -i :8080`으로 `codyssey-app`(`PID 65420`)이 점유 중임을 확인한 뒤 컨테이너 내부 포트(`80`)는 그대로 두고 호스트 포트만 `-p 8081:80`으로 분리해 두 웹 서버를 동시에 띄웠습니다.
-- **P (결론):** 따라서 무작정 프로세스를 종료하기보다 `docker ps`와 `lsof`로 점유 주체를 먼저 식별한 뒤, 상황에 맞게 기존 프로세스를 정리하거나 호스트 매핑 포트만 분리해 안전하게 해결합니다.
+- **P (결론):** 따라서 무작정 `kill -9`로 프로세스를 죽이기보다(특히 Docker 프로세스를 강제 종료하면 전체 데몬이 멈추므로 주의), `docker ps`와 `lsof`로 점유 주체를 먼저 식별해 안전하게 해제하거나 호스트 매핑 포트를 분리해 해결합니다.
 
 ---
 
@@ -105,9 +109,22 @@ $ curl -s http://localhost:8080/data/persist.txt
 Persistent Data Across Container Deletion
 ```
 
-### ③ 구술 답변 카드 (PREP — 60초)
+### ③ Named Volume 아카이브 백업(Export) 및 복원(Import) 권장 절차
+볼륨 자체를 실수로 삭제(`docker volume rm`)하거나 다른 서버로 이전해야 할 때를 대비해, 일회성 컨테이너와 `tar`를 결합한 표준 백업·복원 절차를 함께 마련했습니다.
+```bash
+# 1. [볼륨 백업 (Export)] codyssey-data 볼륨 내용을 호스트의 codyssey-data-backup.tar.gz로 압축 저장
+docker run --rm -v codyssey-data:/data:ro -v "$(pwd):/backup" ubuntu:22.04 \
+  tar czf /backup/codyssey-data-backup.tar.gz -C /data .
+
+# 2. [볼륨 복원 (Import)] 새 볼륨(codyssey-data-restored)에 백업 압축 파일 풀기
+docker volume create codyssey-data-restored
+docker run --rm -v codyssey-data-restored:/data -v "$(pwd):/backup:ro" ubuntu:22.04 \
+  tar xzf /backup/codyssey-data-backup.tar.gz -C /data
+```
+
+### ④ 구술 답변 카드 (PREP — 60초)
 > *(PREP은 출처 확인 불가, 실무에서 통용되는 후보 구조)*
-- **P (결론):** 컨테이너 삭제 시 데이터가 사라지는 문제를 막기 위해, 데이터의 생명주기를 컨테이너와 분리하는 **Docker Named Volume(운영·데이터 영속화)**과 **Bind Mount(개발 중 코드·설정 실시간 연동)**를 목적에 맞게 구분해 사용합니다.
+- **P (결론):** 컨테이너 삭제 시 데이터가 사라지는 문제를 막기 위해, 데이터의 생명주기를 컨테이너와 분리하는 **Docker Named Volume(운영·데이터 영속화)**과 **Bind Mount(개발 중 코드·설정 실시간 연동)**를 목적에 맞게 구분해 사용하며, 중요 볼륨은 `tar` 아카이브로 정기 백업합니다.
 - **R (이유):** 컨테이너의 기본 읽기/쓰기(Read-Write) 레이어는 컨테이너 프로세스에 종속된 임시 공간이라, 컨테이너를 삭제(`docker rm`)하면 그 안에 기록된 변경분도 함께 소멸하기 때문입니다.
 - **E (사례):** 실제로 볼륨 없이 `ephemeral-test` 컨테이너 내부에 `temp.txt`를 생성한 뒤 컨테이너를 삭제하고 새로 띄웠을 때는 `No such file or directory`가 발생하며 데이터가 유실되었지만, `codyssey-data` Named Volume을 `/usr/share/nginx/html/data`에 마운트한 뒤에는 `vol-test-1`을 강제 삭제(`docker rm -f`)하고 새 컨테이너 `vol-test-2`를 띄워도 `persist.txt` 데이터가 그대로 유지됨을 확인했습니다.
 - **P (결론):** 결론적으로 컨테이너는 언제든 지우고 다시 띄울 수 있는 무상태(Stateless)로 두고, 유지되어야 하는 상태(State)는 반드시 볼륨으로 외부화해 관리합니다.
@@ -125,7 +142,32 @@ Persistent Data Across Container Deletion
 | **확인 (Verification)** | `pwd`로 현재 디렉토리명이 한글(`미션-수행`)임을 확인하고, `-p codyssey-1-1` 플래그로 프로젝트 이름을 명시해 테스트했을 때 정상 동작함을 확인함 | `$ docker compose -p codyssey-1-1 config` 정상 파싱 확인 |
 | **조치 및 재발 방지 (Action)** | 사용자가 매번 `-p` 옵션을 수동으로 치지 않고 어느 이름의 폴더에 클론하더라도 100% 재현되도록 [`docker-compose.yml`](../docker-compose.yml) 최상단에 `name: codyssey-1-1`을 코드로 고정함 | [`docker-compose.yml`](../docker-compose.yml) `name: codyssey-1-1` 추가 후 [`01-verification-log.md`](01-verification-log.md) 항목 5에서 `docker compose up -d` 성공 검증 |
 
-### ② 구술 답변 카드 (PREP — 60초)
+### ② 트러블슈팅 발생 전/후 전체 에러 로그 스냅샷
+```text
+# [조치 전: 한글 폴더('미션-수행')에서 name 지정 없이 실행 시 발생한 전체 에러 로그]
+$ basename "$(pwd)"
+미션-수행
+$ docker compose up -d
+project name must not be empty
+$ echo "Exit Code: $?"
+Exit Code: 14
+
+# [가설 확인: -p 플래그로 영문 프로젝트 이름을 주입해 파싱 검증]
+$ docker compose -p codyssey-1-1 config --services
+web
+
+# [조치 후: docker-compose.yml 최상단에 'name: codyssey-1-1' 추가 후 재실행 성공 로그]
+$ head -n 3 docker-compose.yml
+# claude-drafted: 2026-11-02
+name: codyssey-1-1
+
+$ docker compose up -d
+[+] up 2/2
+ ✔ Network codyssey-1-1_default Created                                     0.0s
+ ✔ Container codyssey-app       Started                                     0.1s
+```
+
+### ③ 구술 답변 카드 (PREP — 60초)
 > *(PREP은 출처 확인 불가, 실무에서 통용되는 후보 구조)*
 - **P (결론):** 이번 미션에서 가장 인상 깊게 해결한 문제는 **한글 작업 폴더(`미션-수행`)에서 `docker compose up -d` 실행 시 발생한 `project name must not be empty` 에러**였고, **`가설 → 확인 → 조치`** 순서로 원인을 규명해 어느 폴더에서도 깨지지 않는 재현 가능한 설정으로 해결했습니다.
 - **R (이유):** 단순히 폴더 이름을 영어로 바꾸거나 명령어에 임시 플래그(`-p`)를 붙여 우회하면, 다른 평가자나 팀원이 한글 경로에서 클론해 실행했을 때 똑같은 장애가 재발하기 때문입니다.
