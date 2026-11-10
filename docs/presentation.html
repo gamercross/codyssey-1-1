@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codyssey 1-1 — 비전공자 눈높이 발표 슬라이드</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-alt: #172132;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --blue: #38bdf8;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --purple: #c084fc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .deck {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 56px;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      max-height: 680px;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: var(--card);
+      color: var(--blue);
+      border: 1px solid var(--blue);
+      letter-spacing: 0.5px;
+    }
+    .step-num { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
+    h1 { font-size: 2.3rem; line-height: 1.25; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; flex: 1; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; flex: 1; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; flex: 1; }
+    .card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card.blue { border-color: var(--blue); }
+    .card.green { border-color: var(--green); }
+    .card.amber { border-color: var(--amber); }
+    .card.rose { border-color: var(--rose); }
+    .card.purple { border-color: var(--purple); }
+    .card h3 { font-size: 1.25rem; margin-bottom: 4px; }
+    .card.blue h3 { color: var(--blue); }
+    .card.green h3 { color: var(--green); }
+    .card.amber h3 { color: var(--amber); }
+    .card.rose h3 { color: var(--rose); }
+    .card.purple h3 { color: var(--purple); }
+    .card p, .card li { font-size: 0.98rem; line-height: 1.55; color: var(--text); }
+    .card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+    .highlight { color: var(--amber); font-weight: 700; }
+    .quote-banner {
+      margin-top: 18px;
+      background: var(--card-alt);
+      border: 1.5px solid var(--green);
+      border-radius: 12px;
+      padding: 14px 20px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--green);
+      font-size: 1.02rem;
+    }
+    .notes-panel {
+      background: #090d16;
+      border-top: 1px solid var(--border);
+      padding: 14px 56px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .notes-panel strong { color: var(--amber); margin-right: 8px; }
+    .controls {
+      background: #111827;
+      border-top: 1px solid var(--border);
+      padding: 10px 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .btns button {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .btns button:hover { border-color: var(--blue); color: var(--blue); }
+    code {
+      background: #090d16;
+      color: var(--blue);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck">
+  <!-- SLIDE 1 -->
+  <section class="slide active" data-note="안녕하세요! 제가 이번 Codyssey 1-1 미션에서 수행한 내용은 한마디로 '어떤 컴퓨터에서든 버튼 하나만 누르면 똑같이 작동하는 웹 서버 밀키트 만들기'입니다. 어려운 개발 용어 대신 요리 밀키트, 아파트 출입증, 외부 금고 같은 일상적인 비유로 왜 이 기술들이 필요한지 설명해 드리겠습니다.">
+    <div>
+      <div class="slide-top">
+        <span class="badge">CODYSSEY 1-1 · 비전공자 눈높이 발표자료</span>
+        <span class="step-num">Slide 01 / 10</span>
+      </div>
+      <h1 style="font-size: 2.8rem; margin-top: 18px;">"내 컴퓨터에서는 되는데요?"를 끝내는 법</h1>
+      <p class="subtitle" style="color: var(--blue); font-size: 1.3rem;">요리 밀키트와 아파트 출입증 비유로 3분 만에 이해하는 Linux CLI · Docker · Git</p>
+    </div>
+    <div class="grid-3">
+      <div class="card amber">
+        <h3>🐧 1. 터미널 & 파일 권한</h3>
+        <ul>
+          <li><strong>경로</strong> = 도로명 전체 주소 vs 내 옆방</li>
+          <li><strong>권한(755/644)</strong> = 4+2+1 출입 카드키</li>
+          <li>허락된 스크립트만 안전하게 실행</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>🐳 2. Docker 컨테이너</h3>
+        <ul>
+          <li><strong>이미지 vs 컨테이너</strong> = 붕어빵 틀과 붕어빵</li>
+          <li><strong>포트 매핑</strong> = 방음 방 인터폰 연결</li>
+          <li><strong>볼륨</strong> = 철거돼도 남는 외부 은행 금고</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>🔗 3. Git & 원클릭 재현</h3>
+        <ul>
+          <li><strong>Git</strong> = 내 컴퓨터의 게임 세이브 슬롯</li>
+          <li><strong>GitHub</strong> = 팀원들과 나누는 공유 광장</li>
+          <li>명령 한 줄(<code>docker compose</code>)로 재현</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">💡 키보드 방향키(← / →) 또는 하단 버튼으로 슬라이드를 넘기며 아래 [발표 대본]을 그대로 읽어보세요!</div>
+  </section>
+
+  <!-- SLIDE 2 -->
+  <section class="slide" data-note="개발할 때 가장 흔히 겪는 문제가 '내 컴퓨터에서는 잘 되는데 팀원 컴퓨터로 옮기면 안 되는 것'입니다. 집마다 가스레인지 화력이나 냄비 크기가 달라서 같은 레시피로 요리해도 맛이 달라지는 것과 똑같습니다. 그래서 저는 코드만 건네주는 대신, 조리도구와 재료(실행 환경)를 아예 하나의 밀키트 상자(Docker)로 포장해 누가 켜든 똑같이 작동하도록 만들었습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">WHY DOCKER?</span><span class="step-num">Slide 02 / 10</span></div>
+      <h1>왜 '환경 세팅'이 코딩보다 먼저일까?</h1>
+      <p class="subtitle">집마다 가스레인지 화력과 조리도구가 다르면 같은 레시피로도 다른 요리가 나옵니다.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card rose">
+        <h3>❌ 기존 방식: 레시피 종이(코드)만 건네주기</h3>
+        <p class="highlight">비유: 친구 집 주방에서 요리하기</p>
+        <ul>
+          <li>내 방에서는 완벽하게 돌아가던 홈페이지 코드</li>
+          <li>팀원 컴퓨터로 옮기면 프로그램 버전·폴더 위치가 달라 에러 발생</li>
+          <li><em>"내 컴퓨터에서는 되는데요?"</em> 문제로 시간 낭비 반복</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>✅ 해결책: 조리도구까지 통째로 든 '밀키트(Docker)'</h3>
+        <p class="highlight" style="color: var(--green);">비유: 냄비·불 조절기까지 세팅된 밀키트 상자</p>
+        <ul>
+          <li>홈페이지 코드뿐만 아니라 리눅스 운영체제·웹 서버(NGINX)를 한 상자에 포장</li>
+          <li>맥북이든 윈도우든 상자(컨테이너) 안은 100% 동일한 환경</li>
+          <li>누가 가져가서 켜도 1초 만에 똑같은 결과 재현</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">💡 핵심 한 줄: 코드는 혼자 돌아가지 않습니다. '실행 환경'까지 함께 포장해야 진짜 완성입니다.</div>
+  </section>
+
+  <!-- SLIDE 3 -->
+  <section class="slide" data-note="컴퓨터에서 파일 위치를 부르는 방법은 두 가지입니다. 절대 경로는 '서울시 강남구 테헤란로 123'처럼 어디서 출발하든 변하지 않는 전체 주소이고, 상대 경로는 '지금 내가 서 있는 방에서 오른쪽 방'처럼 내 위치를 기준으로 부르는 방법입니다. 다른 사람 컴퓨터로 폴더를 통째로 공유할 때는 상대 경로를 써야 에러가 나지 않습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 01 · CLI & PATH</span><span class="step-num">Slide 03 / 10</span></div>
+      <h1>터미널 조작과 '절대 경로 vs 상대 경로'</h1>
+      <p class="subtitle">컴퓨터 안에서 길을 찾는 두 가지 방법: 도로명 전체 주소 vs 내 위치 기준 안내</p>
+    </div>
+    <div class="grid-2">
+      <div class="card blue">
+        <h3>📍 절대 경로 (Absolute Path) = 도로명 전체 주소</h3>
+        <p>예시: <code>/usr/share/nginx/html/index.html</code></p>
+        <ul>
+          <li><strong>비유:</strong> "서울특별시 강남구 테헤란로 123, 4층"</li>
+          <li>가장 꼭대기 뿌리(<code>/</code>)부터 끝까지 전체 주소를 다 적음</li>
+          <li>내가 지금 어느 방에 서 있든 무조건 같은 장소를 찾아감</li>
+          <li><strong>언제 쓸까?:</strong> 컨테이너 안의 고정된 시스템 폴더를 지정할 때!</li>
+        </ul>
+      </div>
+      <div class="card amber">
+        <h3>🧭 상대 경로 (Relative Path) = 내 위치 기준 안내</h3>
+        <p>예시: <code>./app/index.html</code> 또는 <code>docs/01-verification-log.md</code></p>
+        <ul>
+          <li><strong>비유:</strong> "지금 내가 서 있는 방(<code>.</code>)에서 바로 옆방(<code>app</code>)"</li>
+          <li>내 현재 위치(<code>pwd</code>)를 기준으로 찾아감</li>
+          <li>집(프로젝트 폴더)을 통째로 다른 컴퓨터로 이사시켜도 주소가 안 깨짐!</li>
+          <li><strong>언제 쓸까?:</strong> Git 저장소 안의 파일을 복사(<code>COPY app/</code>)할 때!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">🛠️ 실습 증명: Dockerfile의 <code>COPY app/ /usr/share/nginx/html/</code> (왼쪽은 이식성 좋은 상대 경로, 오른쪽은 고정된 절대 경로!)</div>
+  </section>
+
+  <!-- SLIDE 4 -->
+  <section class="slide" data-note="리눅스에서 755나 644 같은 숫자는 파일마다 붙어 있는 '출입 카드키 점수'입니다. 읽기 4점, 수정하기 2점, 실행하기 1점인데, 주인·팀원·외부인 순서로 점수를 더합니다. 일반 문서는 주인만 고치고 남들은 읽기만 하라고 644를 주고, 버튼처럼 눌러서 작동시켜야 하는 프로그램이나 안으로 들어가야 하는 폴더에는 실행 점수 1점을 더한 755를 줍니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 02 · PERMISSION</span><span class="step-num">Slide 04 / 10</span></div>
+      <h1>파일 권한(<code>755</code>, <code>644</code>)은 '출입 카드키 점수표'다</h1>
+      <p class="subtitle">주인(Owner) · 팀원(Group) · 외부인(Others) 세 명에게 주는 4+2+1 권한 규칙</p>
+    </div>
+    <div class="grid-3">
+      <div class="card blue">
+        <h3>🔢 4 + 2 + 1 점수 계산법</h3>
+        <ul>
+          <li><strong>읽기 (r = 4점):</strong> 파일 내용을 눈으로 보기 / 폴더 목록 보기</li>
+          <li><strong>쓰기 (w = 2점):</strong> 파일 내용을 고치기 / 폴더에 파일 만들기</li>
+          <li><strong>실행 (x = 1점):</strong> 프로그램 작동 버튼 누르기 / 폴더 안으로 걸어 들어가기(<code>cd</code>)</li>
+        </ul>
+      </div>
+      <div class="card amber">
+        <h3>📄 644 (<code>-rw-r--r--</code>) = 일반 안내문</h3>
+        <p class="highlight">주인 6점(4+2) / 팀원 4점 / 외부인 4점</p>
+        <ul>
+          <li><strong>비유:</strong> 게시판에 붙은 유리 액자 안내문</li>
+          <li>주인만 고칠 수 있고, 남들은 읽기만 가능</li>
+          <li>실행 버튼(1점)이 꺼져 있어 작동 불가</li>
+          <li>실습: <code>chmod 644 hello.sh</code> → <code>Permission denied</code></li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>🚀 755 (<code>-rwxr-xr-x</code>) = 작동 버튼 & 폴더</h3>
+        <p class="highlight" style="color: var(--green);">주인 7점(4+2+1) / 팀원 5점 / 외부인 5점</p>
+        <ul>
+          <li><strong>비유:</strong> 누구나 눌러 켤 수 있는 커피머신 버튼</li>
+          <li>세 자리 모두 실행(1점)이 켜져 있어 작동 가능</li>
+          <li>폴더도 안으로 들어가려면(<code>cd</code>) 반드시 1점이 필요!</li>
+          <li>실습: <code>chmod 755 hello.sh</code> → 실행 성공!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">💡 핵심 한 줄: 일반 문서는 함부로 실행 못 하게 644, 실행 스크립트와 폴더는 작동·진입을 위해 755를 줍니다.</div>
+  </section>
+
+  <!-- SLIDE 5 -->
+  <section class="slide" data-note="Docker에서 가장 중요한 개념이 이미지와 컨테이너의 분리입니다. 이미지는 변하지 않는 '붕어빵 틀'이고, 컨테이너는 그 틀로 찍어내서 실제로 돌아가고 있는 '붕어빵'입니다. 붕어빵 하나가 망가져서 버리더라도(컨테이너 삭제), 틀(이미지)은 그대로 있기 때문에 1초 만에 새 붕어빵을 똑같이 다시 구워낼 수 있습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 03 · IMAGE vs CONTAINER</span><span class="step-num">Slide 05 / 10</span></div>
+      <h1>이미지(Image)와 컨테이너(Container)의 차이</h1>
+      <p class="subtitle">붕어빵을 아무리 먹어치워도 붕어빵 틀은 그대로 남아 있습니다.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card blue">
+        <h3>🧊 이미지 (Docker Image) = 붕어빵 틀 / 밀키트 상자</h3>
+        <p class="highlight" style="color: var(--blue);">관점: 빌드(Build) & 불변(Read-Only)</p>
+        <ul>
+          <li><code>Dockerfile</code>(레시피)로 한 번 구워낸 <strong>읽기 전용 설계도</strong></li>
+          <li>가만히 보관된 상태라 컴퓨터 메모리나 CPU를 쓰지 않음</li>
+          <li>절대 변하지 않으므로(불변), 언제 누가 가져가도 똑같은 모양 보장</li>
+          <li>우리 프로젝트: <code>codyssey-web:1.0</code> (49.7MB 경량 이미지)</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>🔥 컨테이너 (Container) = 방금 구운 붕어빵 / 차려진 식탁</h3>
+        <p class="highlight" style="color: var(--green);">관점: 실행(Run) & 가변(Read-Write)</p>
+        <ul>
+          <li>이미지(틀) 위에 얇은 <strong>임시 메모장(쓰기 레이어)</strong>을 얹어 실제로 켠 프로그램</li>
+          <li>하나의 이미지(틀)로 붕어빵을 1개든 100개든 동시에 찍어낼 수 있음</li>
+          <li>컨테이너 안에서 낙서를 해도 원본 이미지(틀)는 더러워지지 않음</li>
+          <li>단, 컨테이너를 버리면(삭제) 그 안의 임시 메모도 함께 사라짐!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">🔄 핵심 원리: Dockerfile(레시피) ➔ Image(변하지 않는 틀) ➔ Container(언제든 새로 찍어내는 실행 화면)</div>
+  </section>
+
+  <!-- SLIDE 6 -->
+  <section class="slide" data-note="컨테이너는 내 컴퓨터 안에 만든 밀폐된 방음 부스 같아서 밖에서 바로 문을 두드릴 수 없습니다. 그래서 내 컴퓨터 대문 8080번에 초인종을 달고, 그걸 누르면 방 안의 80번 전화기로 연결되게 전선을 이어준 것이 '-p 8080:80' 포트 매핑입니다. 만약 8080번 초인종을 이미 다른 방이 쓰고 있다면, 방 안을 뜯어고칠 필요 없이 새 방은 대문 초인종만 8081번으로 달아주면 두 방 모두 동시에 손님을 받을 수 있습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 04 · PORT MAPPING</span><span class="step-num">Slide 06 / 10</span></div>
+      <h1>포트 매핑(<code>-p 8080:80</code>)은 '방음 방 인터폰 연결'이다</h1>
+      <p class="subtitle">왜 컨테이너 안의 웹 서버에 바로 접속할 수 없고 다리를 놓아야 할까?</p>
+    </div>
+    <div class="grid-2">
+      <div class="card amber">
+        <h3>🚪 왜 바로 못 들어갈까? (네트워크 격리)</h3>
+        <p class="highlight">비유: 집 안에 만든 완벽한 방음 부스</p>
+        <ul>
+          <li>컨테이너는 안전을 위해 내 컴퓨터와 분리된 <strong>독립된 가상 방</strong>에서 돌아감</li>
+          <li>방 안에서 웹 서버가 <code>80번</code> 문을 열고 기다려도 집 밖에서는 보이지 않음</li>
+          <li>그래서 집 대문(호스트 <code>8080번</code>)과 방 안의 문(컨테이너 <code>80번</code>)을 전선으로 연결!</li>
+          <li>명령어: <code>docker run -p 8080(집 대문):80(방 문)</code></li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>⚡ 만약 8080번 초인종을 이미 다른 방이 쓰고 있다면?</h3>
+        <p class="highlight" style="color: var(--blue);">실제 실험: 포트 충돌(Port Conflict) 진단 4단계</p>
+        <ul>
+          <li><strong>1단계:</strong> <code>port is already allocated</code> 에러 메시지 확인</li>
+          <li><strong>2단계:</strong> <code>docker ps --filter publish=8080</code>으로 다른 컨테이너 확인</li>
+          <li><strong>3단계:</strong> <code>lsof -i :8080</code>으로 내 컴퓨터 프로그램(PID) 확인</li>
+          <li><strong>4단계:</strong> 방 안의 <code>80번</code>은 그대로 두고 집 대문만 <code>-p 8081:80</code>으로 변경!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">💡 포트 매핑 덕분에 똑같은 웹 서버 컨테이너 여러 개를 대문 번호(8080, 8081)만 다르게 해서 동시에 띄울 수 있습니다!</div>
+  </section>
+
+  <!-- SLIDE 7 -->
+  <section class="slide" data-note="컨테이너는 임시 팝업스토어 같아서 철거(삭제)하면 가게 안의 물건도 다 같이 사라집니다. 그래서 잃어버리면 안 되는 중요한 장부 데이터는 가게 밖의 '외부 은행 금고(Docker Volume)'에 연결해 둡니다. 실제로 실험에서 1번 컨테이너를 강제로 폭파시킨 뒤 2번 컨테이너를 새로 띄워 금고를 연결했더니 데이터가 그대로 살아있는 것을 증명했습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 05 · STORAGE & VOLUME</span><span class="step-num">Slide 07 / 10</span></div>
+      <h1>컨테이너를 지워도 데이터가 남는 '외부 은행 금고(볼륨)'</h1>
+      <p class="subtitle">일회용 팝업스토어(컨테이너)가 철거되어도 고객 장부(데이터)는 사라지면 안 됩니다.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card green">
+        <h3>🏦 Named Volume = 안전한 외부 은행 금고</h3>
+        <p>명령어: <code>-v codyssey-data:/usr/share/nginx/html/data</code></p>
+        <ul>
+          <li><strong>비유:</strong> 팝업스토어 밖에 따로 마련한 은행 금고</li>
+          <li>가게(<code>vol-test-1</code>)에서 장부(<code>persist.txt</code>)를 쓰면 외부 금고에 저장됨</li>
+          <li>가게를 완전히 철거(<code>docker rm -f</code>)한 뒤 새 가게(<code>vol-test-2</code>)를 지어 금고만 연결하면?</li>
+          <li>👉 <strong>이전에 적었던 장부 데이터가 100% 그대로 살아있음!</strong></li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>🪞 Bind Mount = 내 책상과 연결된 투명 창문</h3>
+        <p>명령어: <code>-v ./app:/usr/share/nginx/html</code></p>
+        <ul>
+          <li><strong>비유:</strong> 내 컴퓨터 폴더를 컨테이너 안으로 바로 비춰주는 거울</li>
+          <li>내 컴퓨터에서 홈페이지 글자(<code>v1.0 → v2.0</code>)를 고치고 저장하는 순간,</li>
+          <li>컨테이너를 다시 만들지 않아도 0.1초 만에 웹사이트 화면이 바뀜!</li>
+          <li>👉 <strong>개발할 때는 Bind Mount, 중요한 데이터 보관에는 Named Volume!</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">🔑 황금 법칙: 컨테이너(가게)는 언제든 부수고 새로 지을 수 있게 가볍게 두고, 중요한 데이터(장부)는 볼륨(금고)에 분리한다!</div>
+  </section>
+
+  <!-- SLIDE 8 -->
+  <section class="slide" data-note="마지막으로 Git과 GitHub의 차이입니다. Git은 내 컴퓨터 안에서 작업 기록을 저장하는 '게임 세이브 슬롯(타임머신)'이고, GitHub는 그 세이브 파일을 팀원들과 나누는 '온라인 공유 광장'입니다. 여기에 보너스 과제로 복잡한 실행 명령어를 'docker-compose.yml'이라는 주문서 한 장으로 만들어 두어서, 누가 제 GitHub 링크를 받아 'docker compose up -d' 한 줄만 치면 똑같은 서버가 켜집니다.">
+    <div>
+      <div class="slide-top"><span class="badge">CONCEPT 06 · GIT & COMPOSE</span><span class="step-num">Slide 08 / 10</span></div>
+      <h1>타임머신(Git), 공유 광장(GitHub), 원클릭 주문서(Compose)</h1>
+      <p class="subtitle">혼자만 쓰는 환경이 아니라 팀원 누구나 1초 만에 똑같이 켜는 방법</p>
+    </div>
+    <div class="grid-3">
+      <div class="card amber">
+        <h3>⏱️ Git = 내 컴퓨터의 타임머신</h3>
+        <ul>
+          <li>게임할 때 중요한 순간마다 눌러두는 <strong>세이브 슬롯(Commit)</strong></li>
+          <li>인터넷이 끊겨 있어도 내 컴퓨터 안에서 작동</li>
+          <li>코드를 잘못 고쳐도 언제든 어제 세이브 지점으로 복원 가능</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>🌐 GitHub = 온라인 공유 광장</h3>
+        <ul>
+          <li>내 컴퓨터의 Git 세이브 파일을 인터넷에 올리는 클라우드 본부</li>
+          <li>팀원들이 작업물을 내려받고(Clone), 변경 사항을 리뷰(PR)하는 공간</li>
+          <li>민감한 비밀번호·토큰은 자동 검사 훅으로 철저히 마스킹!</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>🪄 Docker Compose = 원클릭 주문서</h3>
+        <ul>
+          <li>복잡한 포트 번호와 볼륨 이름을 매번 손으로 치면 실수 발생</li>
+          <li>모든 실행 옵션을 설계도 한 장(<code>docker-compose.yml</code>)에 기록</li>
+          <li>누구나 <code>docker compose up -d</code> 한 줄만 치면 끝!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">🚀 재현성 완성: GitHub에서 내려받기(<code>git clone</code>) ➔ 원클릭 실행(<code>docker compose up -d</code>) ➔ 1초 만에 동일 환경 완성!</div>
+  </section>
+
+  <!-- SLIDE 9 -->
+  <section class="slide" data-note="실습 중 가장 재미있었던 문제 해결 사례입니다. 폴더 이름이 한글인 '미션-수행' 폴더에서 실행했더니 '프로젝트 이름이 비어있다'는 에러가 났습니다. 원리를 찾아보니 Docker Compose는 폴더 이름에서 영어와 숫자만 뽑아 이름을 짓는데, 한글 폴더이다 보니 글자가 다 지워져 빈칸이 된 것이었습니다. 그래서 아예 설정 파일 맨 윗줄에 'name: codyssey-1-1'이라고 영어 이름을 박제해 두어, 앞으로 누가 한글 폴더에 다운받아도 절대 에러가 나지 않게 근본적으로 해결했습니다.">
+    <div>
+      <div class="slide-top"><span class="badge">TROUBLESHOOTING STORY</span><span class="step-num">Slide 09 / 10</span></div>
+      <h1>실제 문제 해결 사례: "한글 폴더에서는 왜 멈췄을까?"</h1>
+      <p class="subtitle">단순히 우회하지 않고 <strong>가설 ➔ 확인 ➔ 조치</strong>로 근본 원인을 해결한 과정</p>
+    </div>
+    <div class="grid-4">
+      <div class="card rose">
+        <h3>1️⃣ 문제 발생</h3>
+        <p><code>project name must not be empty</code></p>
+        <p>한글로 된 <code>미션-수행</code> 폴더에서 <code>docker compose up -d</code>를 치자마자 실행이 거부됨</p>
+      </div>
+      <div class="card amber">
+        <h3>2️⃣ 원인 가설</h3>
+        <p class="highlight">폴더 이름 정규화 규칙?</p>
+        <p>Compose는 현재 폴더 이름에서 영어 소문자와 숫자만 남겨 이름을 짓는데, 순수 한글 폴더명이라 다 지워져 빈칸(<code>""</code>)이 되었을 것!</p>
+      </div>
+      <div class="card blue">
+        <h3>3️⃣ 실험 확인</h3>
+        <p><code>docker compose -p codyssey-1-1 config</code></p>
+        <p>영문 이름을 강제로 지정해 테스트해 보니 즉시 정상 작동함을 확인!</p>
+      </div>
+      <div class="card green">
+        <h3>4️⃣ 근본 조치</h3>
+        <p><code>name: codyssey-1-1</code></p>
+        <p>다른 사람이 한글 폴더에 받아도 에러가 안 나도록 <code>docker-compose.yml</code> 최상단에 이름을 영구 고정!</p>
+      </div>
+    </div>
+    <div class="quote-banner">💡 배운 점: 내 컴퓨터의 폴더 이름에 의존하지 않고 설정 파일 안에 이름을 고정해야 진짜 '어디서나 돌아가는 환경'이 됩니다.</div>
+  </section>
+
+  <!-- SLIDE 10 -->
+  <section class="slide" data-note="마지막 요약표입니다. 오늘 설명해 드린 6가지 비유—도로명 주소, 출입 카드키, 붕어빵 틀, 방음 방 인터폰, 외부 금고, 그리고 세이브 슬롯—만 기억하시면 리눅스와 도커, 깃이 왜 개발자의 첫 번째 필수 도구인지 누구나 쉽게 이해하실 수 있습니다. 감사합니다!">
+    <div>
+      <div class="slide-top"><span class="badge">SUMMARY CHEAT SHEET</span><span class="step-num">Slide 10 / 10</span></div>
+      <h1>한눈에 보는 비전공자 설명 치트시트 (Q&A 대비)</h1>
+      <p class="subtitle">질문이 들어오면 이 6가지 일상 비유로 먼저 대답하세요!</p>
+    </div>
+    <div class="grid-2">
+      <div class="card blue">
+        <h3>🗣️ 리눅스 · 이미지 기본 비유</h3>
+        <ul>
+          <li><strong>1. 절대 경로 vs 상대 경로:</strong><br/>도로명 전체 주소(<code>/usr/...</code>) vs 내 위치 기준 옆방(<code>./app</code>)</li>
+          <li><strong>2. 파일 권한 (755 / 644):</strong><br/>일반 안내문은 <code>644</code>, 누르는 작동 버튼·폴더는 <code>755</code> (4+2+1 점수)</li>
+          <li><strong>3. 이미지 vs 컨테이너:</strong><br/>변하지 않는 붕어빵 틀(이미지) vs 방금 구운 붕어빵(컨테이너)</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>🗣️ 네트워크 · 데이터 · 협업 비유</h3>
+        <ul>
+          <li><strong>4. 포트 매핑 (-p 8080:80):</strong><br/>방음 부스(컨테이너) 안의 전화기를 집 대문 초인종과 연결하기</li>
+          <li><strong>5. Docker 볼륨 (Volume):</strong><br/>임시 팝업스토어를 부숴도 장부는 남게 하는 외부 은행 금고</li>
+          <li><strong>6. Git vs GitHub:</strong><br/>내 컴퓨터의 게임 세이브 슬롯(Git) vs 팀원들과 나누는 공유 광장(GitHub)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="quote-banner">🎉 감사합니다! | 저장소: github.com/gamercross/codyssey-1-1</div>
+  </section>
+</div>
+
+<div class="notes-panel" id="notesBox">
+  <strong>🎙️ 발표 대본 (Speaker Notes):</strong>
+  <span id="notesText"></span>
+</div>
+
+<div class="controls">
+  <div>단축키: <code>←</code> 이전 / <code>→</code> 또는 <code>Space</code> 다음 / <code>N</code> 대본 숨기기·보기</div>
+  <div class="btns">
+    <button onclick="prevSlide()">◀ 이전 슬라이드</button>
+    <button onclick="nextSlide()">다음 슬라이드 ▶</button>
+    <button onclick="toggleNotes()">🎙️ 대본 토글</button>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const notesText = document.getElementById('notesText');
+  const notesBox = document.getElementById('notesBox');
+  let idx = 0;
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    notesText.textContent = slides[idx].getAttribute('data-note');
+  }
+  function nextSlide() { if (idx < slides.length - 1) { idx++; render(); } }
+  function prevSlide() { if (idx > 0) { idx--; render(); } }
+  function toggleNotes() {
+    notesBox.style.display = notesBox.style.display === 'none' ? 'block' : 'none';
+  }
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key.toLowerCase() === 'n') toggleNotes();
+  });
+  render();
+</script>
+</body>
+</html>
